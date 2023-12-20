@@ -4,24 +4,25 @@
  */
 package cct;
 
-
 import java.util.List;
 import java.util.Scanner;
+
 /**
- *
- * @author leand
+ * Main class for the Command and Control Tool (CCT) system.
  */
 public class CCT {
 
     /**
+     * Main method to run the program.
      * @param args the command line arguments
      */
-
     public static void main(String[] args) {
+        // Initialize Scanner for user input
         Scanner scanner = new Scanner(System.in);
+        // Create the system manager to manage users
         SystemManager systemManager = new SystemManager();
 
-        // Menu de Seleção
+        // User type selection menu
         int userTypeChoice;
         do {
             System.out.println("Select User Type:");
@@ -31,6 +32,7 @@ public class CCT {
             System.out.print("Enter your choice: ");
             userTypeChoice = scanner.nextInt();
 
+            // Switch based on user type choice
             switch (userTypeChoice) {
                 case 1:
                     // Admin
@@ -49,18 +51,32 @@ public class CCT {
             }
         } while (userTypeChoice != 0);
 
+        // Close the scanner to avoid resource leaks
         scanner.close();
     }
 
+    /**
+     * Method to authenticate an admin and proceed to the admin menu.
+     * @param systemManager the system manager
+     * @param scanner the scanner for user input
+     */
     private static void authenticateAdminAndProceed(SystemManager systemManager, Scanner scanner) {
+        // Authenticate admin
         Admin admin = authenticateAdmin(systemManager, scanner);
         if (admin != null) {
+            // Proceed to admin menu if authentication is successful
             adminMenu(admin, systemManager, scanner);
         } else {
             System.out.println("Authentication failed. Returning to the main menu.");
         }
     }
 
+    /**
+     * Method to authenticate an admin.
+     * @param systemManager the system manager
+     * @param scanner the scanner for user input
+     * @return the authenticated admin or null if authentication fails
+     */
     private static Admin authenticateAdmin(SystemManager systemManager, Scanner scanner) {
         System.out.println("\nAdmin Authentication");
         System.out.print("Username: ");
@@ -69,7 +85,6 @@ public class CCT {
         String adminPassword = scanner.next();
 
         if (adminUsername.equals("CCT") && adminPassword.equals("Dublin")) {
-            // in the admin credentials are corrects
             Admin admin = findAdminByUsername(systemManager.getUsers(), adminUsername);
 
             if (admin != null) {
@@ -84,6 +99,12 @@ public class CCT {
         }
     }
 
+    /**
+     * Method to find an admin by username.
+     * @param users the list of users
+     * @param username the username to search for
+     * @return the admin with the specified username, or null if not found
+     */
     private static Admin findAdminByUsername(List<User> users, String username) {
         for (User user : users) {
             if (user instanceof Admin && user.getUsername().equals(username)) {
@@ -93,7 +114,14 @@ public class CCT {
         return null;
     }
 
+    /**
+     * Method to display the admin menu and handle admin-specific operations.
+     * @param admin the authenticated admin
+     * @param systemManager the system manager
+     * @param scanner the scanner for user input
+     */
     private static void adminMenu(Admin admin, SystemManager systemManager, Scanner scanner) {
+        // Admin menu options
         int adminChoice;
         do {
             System.out.println("\nAdmin Menu:");
@@ -105,6 +133,7 @@ public class CCT {
             System.out.print("Enter your choice: ");
             adminChoice = scanner.nextInt();
 
+            // Switch based on admin menu choice
             switch (adminChoice) {
                 case 1:
                     modifyProfile(admin, scanner);
@@ -128,16 +157,24 @@ public class CCT {
         } while (adminChoice != 0);
     }
 
+    /**
+     * Method to handle regular user menu options.
+     * @param systemManager the system manager
+     * @param scanner the scanner for user input
+     */
     private static void regularUserMenu(SystemManager systemManager, Scanner scanner) {
-        System.out.println("\nLogin or Register of User Regular");
+        // Regular user login or registration
+        System.out.println("\nLogin or Registration for Regular User");
         System.out.print("Username: ");
         String regularUsername = scanner.next();
         System.out.print("Password: ");
         String regularPassword = scanner.next();
 
+        // Find or register regular user
         User regularUser = findUserByUsername(systemManager.getUsers(), regularUsername);
 
         if (regularUser == null) {
+            // Register new regular user
             System.out.print("Name: ");
             String regularName = scanner.next();
             System.out.print("Surname: ");
@@ -145,16 +182,24 @@ public class CCT {
 
             regularUser = new RegularUser(regularUsername, regularPassword, regularName, regularSurname);
             systemManager.addUser(regularUser);
-            System.out.println("User register with success!");
+            System.out.println("User registered successfully!");
         } else if (!regularUser.getPassword().equals(regularPassword)) {
-            System.out.println("Regular user authentication failed. Closing the program.");
+            // Authentication failure
+            System.out.println("Regular user authentication failed. Exiting the program.");
             return;
         }
 
+        // Display regular user menu options
         regularUserMenuOptions(regularUser, scanner);
     }
 
+    /**
+     * Method to handle regular user menu options.
+     * @param regularUser the authenticated regular user
+     * @param scanner the scanner for user input
+     */
     private static void regularUserMenuOptions(User regularUser, Scanner scanner) {
+        // Regular user menu options
         int regularChoice;
         do {
             System.out.println("\nRegular User Menu:");
@@ -165,6 +210,7 @@ public class CCT {
             System.out.print("Enter your choice: ");
             regularChoice = scanner.nextInt();
 
+            // Switch based on regular user menu choice
             switch (regularChoice) {
                 case 1:
                     modifyProfile(regularUser, scanner);
@@ -185,6 +231,11 @@ public class CCT {
         } while (regularChoice != 0);
     }
 
+    /**
+     * Method to modify the profile of a user.
+     * @param user the user whose profile is to be modified
+     * @param scanner the scanner for user input
+     */
     private static void modifyProfile(User user, Scanner scanner) {
         System.out.print("New name: ");
         String newName = scanner.next();
@@ -192,6 +243,11 @@ public class CCT {
         System.out.println("Profile modified successfully!");
     }
 
+    /**
+     * Method to save an equation for a regular user.
+     * @param user the regular user
+     * @param scanner the scanner for user input
+     */
     private static void saveEquation(User user, Scanner scanner) {
         System.out.print("Enter the equation to save: ");
         String newEquation = scanner.next();
@@ -199,10 +255,18 @@ public class CCT {
         System.out.println("Equation saved successfully!");
     }
 
+    /**
+     * Method to display equations for a regular user.
+     * @param user the regular user
+     */
     private static void displayEquations(User user) {
         user.displayEquations();
     }
 
+    /**
+     * Method to access and display the list of users.
+     * @param users the list of users
+     */
     private static void accessListOfUsers(List<User> users) {
         System.out.println("\nList of Users:");
         for (User user : users) {
@@ -210,6 +274,11 @@ public class CCT {
         }
     }
 
+    /**
+     * Method to remove a user by username.
+     * @param systemManager the system manager
+     * @param scanner the scanner for user input
+     */
     private static void removeUser(SystemManager systemManager, Scanner scanner) {
         System.out.print("Enter the username to remove: ");
         String usernameToRemove = scanner.next();
@@ -217,6 +286,12 @@ public class CCT {
         System.out.println("User removed successfully!");
     }
 
+    /**
+     * Method to find a user by username.
+     * @param users the list of users
+     * @param username the username to search for
+     * @return the user with the specified username, or null if not found
+     */
     private static User findUserByUsername(List<User> users, String username) {
         for (User user : users) {
             if (user.getUsername().equals(username)) {
@@ -226,6 +301,10 @@ public class CCT {
         return null;
     }
 
+    /**
+     * Method to review operations for an admin.
+     * @param admin the admin user
+     */
     private static void reviewOperations(Admin admin) {
         System.out.println("\nReviewing Operations (Dummy):");
         System.out.println("No operations to review in this simulation.");
